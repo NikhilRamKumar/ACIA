@@ -5,7 +5,7 @@ from app.models.competitor import Competitor
 from app.models.update import CompetitorUpdate
 from app.api.competitor_routes import router as competitor_router
 from app.api.update_routes import router as update_router
-
+from app.api.scraper_routes import router as scraper_router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -31,3 +31,4 @@ def health_check():
 
 app.include_router(competitor_router)
 app.include_router(update_router)
+app.include_router(scraper_router)
