@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.database.db import get_db
@@ -47,8 +47,17 @@ def create_update(update: CompetitorUpdateCreate, db: Session = Depends(get_db))
 
 
 @router.get("/", response_model=list[CompetitorUpdateResponse])
-def get_all_updates(db: Session = Depends(get_db)):
-    updates = db.query(CompetitorUpdate).all()
+def get_all_updates(domain: str = Query(None), db: Session = Depends(get_db)):
+    query = db.query(CompetitorUpdate)
+    
+    if domain:
+        # Join with Competitor table to filter by domain
+        query = query.join(Competitor).filter(Competitor.domain == domain)
+    
+    updates = query.order_by(
+        CompetitorUpdate.scraped_at.desc()
+    ).all()
+
     return updates
 
 
@@ -69,8 +78,40 @@ def get_update(update_id: int, db: Session = Depends(get_db)):
 
 @router.get("/competitor/{competitor_id}", response_model=list[CompetitorUpdateResponse])
 def get_updates_by_competitor(competitor_id: int, db: Session = Depends(get_db)):
+    competitor = db.query(Competitor).filter(
+        Competitor.id == competitor_id
+    ).first()
+
+    if not competitor:
+        raise HTTPException(
+            status_code=404,
+            detail="Competitor not found"
+        )
+
     updates = db.query(CompetitorUpdate).filter(
         CompetitorUpdate.competitor_id == competitor_id
+    ).order_by(
+        CompetitorUpdate.scraped_at.desc()
     ).all()
 
     return updates
+
+
+@router.delete("/{update_id}")
+def delete_update(update_id: int, db: Session = Depends(get_db)):
+    update = db.query(CompetitorUpdate).filter(
+        CompetitorUpdate.id == update_id
+    ).first()
+
+    if not update:
+        raise HTTPException(
+            status_code=404,
+            detail="Update not found"
+        )
+
+    db.delete(update)
+    db.commit()
+
+    return {
+        "message": "Update deleted successfully"
+    }

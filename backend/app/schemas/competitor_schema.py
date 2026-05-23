@@ -12,6 +12,7 @@ class CompetitorCreate(BaseModel):
     github_url: Optional[str] = None
     industry: Optional[str] = None
     description: Optional[str] = None
+    domain: Optional[str] = None
 
 
 class CompetitorUpdateSchema(BaseModel):
@@ -23,6 +24,7 @@ class CompetitorUpdateSchema(BaseModel):
     github_url: Optional[str] = None
     industry: Optional[str] = None
     description: Optional[str] = None
+    domain: Optional[str] = None
 
 
 class CompetitorResponse(BaseModel):
@@ -35,6 +37,7 @@ class CompetitorResponse(BaseModel):
     github_url: Optional[str] = None
     industry: Optional[str] = None
     description: Optional[str] = None
+    domain: Optional[str] = None
     created_at: datetime
 
     class Config:

@@ -18,6 +18,8 @@ class Competitor(Base):
 
     industry = Column(String, nullable=True)
     description = Column(String, nullable=True)
+    
+    domain = Column(String, nullable=True, index=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
 

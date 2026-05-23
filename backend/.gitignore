@@ -9,3 +9,5 @@ dist/
 build/
 .idea/
 .vscode/
+vector_store/
+node_modules/

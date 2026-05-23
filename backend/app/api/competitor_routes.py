@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.database.db import get_db
@@ -37,8 +37,13 @@ def create_competitor(competitor: CompetitorCreate, db: Session = Depends(get_db
 
 
 @router.get("/", response_model=list[CompetitorResponse])
-def get_all_competitors(db: Session = Depends(get_db)):
-    competitors = db.query(Competitor).all()
+def get_all_competitors(domain: str = Query(None), db: Session = Depends(get_db)):
+    query = db.query(Competitor)
+    
+    if domain:
+        query = query.filter(Competitor.domain == domain)
+    
+    competitors = query.all()
     return competitors
 
 
