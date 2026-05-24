@@ -1,2 +1,7 @@
-# ACIA
-ACIA (Autonomous Competitive Intelligence Agent) is an AI-powered system that monitors competitor activities from sources like websites, GitHub, hiring updates, and news. It analyzes these signals, generates strategic hypotheses, predicts competitors’ next moves, and improves its predictions over time using feedback and memory.
+# ACIA – Autonomous Competitive Intelligence Agent
+
+ACIA is a multi-domain AI-powered competitive intelligence platform that monitors competitors, scrapes market updates, summarizes changes, detects pricing and product movements, scores threats, predicts competitor next moves, and generates strategic intelligence for businesses.
+
+The system supports multiple domains such as AI/GenAI, Mobile Phones, Electric Vehicles, SaaS Products, E-commerce, and FinTech.
+
+---
