@@ -122,17 +122,61 @@ const Dashboard = () => {
         return;
       }
 
+      // Show initial message explaining what's happening
+      showToast(
+        'Scraping started. This may take 1–2 minutes because ACIA checks all competitors in the selected domain, compares previous updates, skips duplicates, and stores only new updates.',
+        'info'
+      );
+
       setActionLoading(prev => ({ ...prev, scrape: true }));
+      
       const result = await scrapeDomainCompetitors(selectedDomainKey);
       
-      // Show summary of scraping results
-      const message = `Scraping completed for ${selectedDomain}. Saved: ${result.success_count} competitors, Failed: ${result.failed_count}, Skipped: ${result.skipped_count}`;
-      showToast(message, 'success');
+      // Build appropriate message based on results
+      let message = '';
+      let toastType = 'success';
+      
+      if (result.saved_total > 0) {
+        message = `Scraping completed. ${result.saved_total} new update${result.saved_total === 1 ? '' : 's'} found.`;
+      } else if (result.failed_count > 0 || result.no_updates_count > 0) {
+        message = 'Scraping completed. No new updates found. Some competitor websites may have blocked scraping or had no new content.';
+        if (result.failed_count > 0) {
+          message += ` ${result.failed_count} competitor${result.failed_count === 1 ? '' : 's'} could not be scraped due to timeout, blocking, or unavailable pages.`;
+        }
+      } else {
+        message = 'Scraping completed. No new updates found.';
+      }
+      
+      // Add summary of what happened
+      const summaryParts = [];
+      if (result.success_count > 0) summaryParts.push(`Success: ${result.success_count}`);
+      if (result.failed_count > 0) summaryParts.push(`Failed: ${result.failed_count}`);
+      if (result.skipped_count > 0) summaryParts.push(`Skipped: ${result.skipped_count}`);
+      if (result.no_updates_count > 0) summaryParts.push(`No updates: ${result.no_updates_count}`);
+      
+      if (summaryParts.length > 0) {
+        message += ` (${summaryParts.join(', ')})`;
+      }
+      
+      showToast(message, toastType);
       
       setTimeout(loadDashboardData, 1500);
     } catch (error) {
       console.error('Error scraping domain:', error);
-      showToast('Failed to scrape domain. Please try again.', 'error');
+      
+      // Check if it's a network timeout vs other error
+      if (error.code === 'ECONNABORTED' || error.message === 'timeout of 180000ms exceeded') {
+        showToast(
+          'Scraping request timed out. This may happen if too many competitors have blocked scraping. Please try again later.',
+          'error'
+        );
+      } else if (error.response && error.response.status >= 500) {
+        showToast('Backend server error. Please try again.', 'error');
+      } else if (error.response && error.response.status >= 400) {
+        showToast('Invalid request. Please check your domain selection.', 'error');
+      } else {
+        showToast('Failed to scrape domain. Please try again.', 'error');
+      }
     } finally {
       setActionLoading(prev => ({ ...prev, scrape: false }));
     }

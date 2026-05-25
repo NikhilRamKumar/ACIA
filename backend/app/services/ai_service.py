@@ -2,6 +2,11 @@ import os
 import json
 from dotenv import load_dotenv
 from openai import OpenAI
+from app.services.threat_service import (
+    calculate_threat_score,
+    generate_risk_explanation,
+    assess_threat_reason
+)
 
 load_dotenv()
 
@@ -97,80 +102,40 @@ def summarize_competitor_update(title: str, content: str):
 
 def local_analysis_fallback(title: str, content: str, summary: str = None):
     """
-    Free rule-based category and threat score analyzer.
-    This avoids API quota issues.
+    Rule-based category and threat score analyzer using improved threat scoring.
+    This avoids API quota issues and provides more realistic threat assessments.
     """
 
     text = f"{title} {content or ''} {summary or ''}".lower()
 
+    # Detect category from keywords
     category = "Other"
-    threat_score = 4
-    threat_reason = "This update is relevant but does not strongly indicate a major competitive threat."
-
-    if any(word in text for word in ["model", "gpt", "claude", "llm", "ai model", "reasoning"]):
+    
+    if any(word in text for word in ["model", "gpt", "claude", "llm", "ai model", "reasoning", "capability"]):
         category = "Model Release"
-        threat_score = 8
-        threat_reason = (
-            "This appears to be related to model capability improvements, which can directly affect AI product competition, "
-            "developer adoption, and enterprise usage."
-        )
-
-    elif any(word in text for word in ["price", "pricing", "cost", "subscription", "plan", "pro"]):
+    elif any(word in text for word in ["price", "pricing", "cost", "subscription", "plan", "pro", "cheaper"]):
         category = "Pricing Change"
-        threat_score = 7
-        threat_reason = (
-            "Pricing changes can influence customer switching, adoption speed, and competitive positioning in the market."
-        )
-
-    elif any(word in text for word in ["launch", "released", "introducing", "new product", "feature"]):
+    elif any(word in text for word in ["launch", "released", "introducing", "new product", "feature", "release"]):
         category = "Product Launch"
-        threat_score = 7
-        threat_reason = (
-            "A new product or feature launch may improve the competitor's market position and attract new users."
-        )
-
-    elif any(word in text for word in ["funding", "raised", "investment", "series"]):
+    elif any(word in text for word in ["funding", "raised", "investment", "series", "capital"]):
         category = "Funding News"
-        threat_score = 6
-        threat_reason = (
-            "Funding can help the competitor expand faster, hire talent, and invest in product development."
-        )
-
-    elif any(word in text for word in ["partner", "partnership", "collaboration", "integrates"]):
+    elif any(word in text for word in ["partner", "partnership", "collaboration", "integrates", "acquisition"]):
         category = "Partnership"
-        threat_score = 6
-        threat_reason = (
-            "Partnerships can expand distribution, improve integrations, and strengthen the competitor ecosystem."
-        )
-
-    elif any(word in text for word in ["hiring", "jobs", "career", "engineer", "researcher"]):
+    elif any(word in text for word in ["hiring", "jobs", "career", "engineer", "researcher", "recruitment"]):
         category = "Hiring Signal"
-        threat_score = 5
-        threat_reason = (
-            "Hiring signals may indicate expansion into new product areas or increased investment in technical capabilities."
-        )
-
-    elif any(word in text for word in ["docs", "documentation", "api docs", "guide", "developer"]):
+    elif any(word in text for word in ["docs", "documentation", "api docs", "guide", "tutorial", "blog"]):
         category = "Documentation Update"
-        threat_score = 4
-        threat_reason = (
-            "Documentation updates can improve developer experience but may not always indicate a major strategic move."
-        )
-
-    elif any(word in text for word in ["research", "paper", "benchmark", "study"]):
+    elif any(word in text for word in ["research", "paper", "benchmark", "study", "whitepaper"]):
         category = "Research Update"
-        threat_score = 6
-        threat_reason = (
-            "Research updates can indicate future technical direction and possible upcoming product improvements."
-        )
-
-    elif any(word in text for word in ["india", "europe", "global", "market", "expansion", "region"]):
+    elif any(word in text for word in ["india", "europe", "global", "market", "expansion", "region", "international"]):
         category = "Market Expansion"
-        threat_score = 7
-        threat_reason = (
-            "Market expansion can increase customer reach and strengthen the competitor's presence in new regions."
-        )
-
+    
+    # Calculate threat score using improved logic
+    threat_score = calculate_threat_score(title, content, summary, category)
+    
+    # Generate threat reason
+    threat_reason = assess_threat_reason(title, content, summary, category, threat_score)
+    
     return {
         "category": category,
         "threat_score": threat_score,

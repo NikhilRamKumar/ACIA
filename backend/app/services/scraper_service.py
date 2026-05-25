@@ -96,30 +96,38 @@ def is_valid_article_url(url: str) -> bool:
         return False
 
 
-def fetch_page_html(url: str, timeout: int = 15):
+def fetch_page_html(url: str, timeout: int = 8):
     """
-    Fetch HTML content from a webpage.
+    Fetch HTML content from a webpage with strict timeout.
     
     Args:
         url: URL to fetch
-        timeout: Request timeout in seconds
+        timeout: Request timeout in seconds (default 8 seconds)
     
     Returns:
         HTML content as string, or None on error
     """
 
     try:
-        response = requests.get(url, headers=HEADERS, timeout=timeout)
-        response.raise_for_status()
+        response = requests.get(
+            url, 
+            headers=HEADERS, 
+            timeout=timeout,
+            allow_redirects=True
+        )
+        
+        # Handle HTTP errors gracefully
+        if response.status_code >= 400:
+            print(f"HTTP {response.status_code} fetching {url}")
+            return None
+        
         return response.text
 
     except requests.exceptions.Timeout:
-        print(f"Timeout fetching {url}")
+        print(f"Timeout fetching {url} (timeout={timeout}s)")
         return None
-    except requests.exceptions.HTTPError as e:
-        # Log but don't crash on 404, 403, etc.
-        status_code = e.response.status_code if hasattr(e, 'response') else 'unknown'
-        print(f"HTTP {status_code} fetching {url}")
+    except requests.exceptions.ConnectionError:
+        print(f"Connection error fetching {url}")
         return None
     except requests.exceptions.RequestException as e:
         print(f"Error fetching {url}: {type(e).__name__}")
@@ -129,7 +137,7 @@ def fetch_page_html(url: str, timeout: int = 15):
         return None
 
 
-def fetch_article_content(article_url: str, fallback_title: str = None, max_length: int = 5000):
+def fetch_article_content(article_url: str, fallback_title: str = None, max_length: int = 5000, timeout: int = 6):
     """
     Fetch and extract full article content from a given URL.
     
@@ -145,12 +153,13 @@ def fetch_article_content(article_url: str, fallback_title: str = None, max_leng
         article_url: URL of the article
         fallback_title: Content to use if fetch fails (typically the article title)
         max_length: Maximum content length (default 5000 characters)
+        timeout: Request timeout in seconds (default 6 seconds)
     
     Returns:
         Full article text, fallback_title if provided, or None
     """
     
-    html = fetch_page_html(article_url)
+    html = fetch_page_html(article_url, timeout=timeout)
     
     if not html:
         # Return fallback content if fetch failed
@@ -217,69 +226,81 @@ def fetch_article_content(article_url: str, fallback_title: str = None, max_leng
         return fallback_title
 
 
-def extract_blog_updates(blog_url: str, max_items: int = 5):
+def extract_blog_updates(blog_url: str, max_items: int = 3):
     """
     Extract blog/news article links from a competitor blog page.
-    For each valid article, fetch and extract full article content.
+    For each valid article, fetch and extract full article content with timeout.
     
     Args:
         blog_url: URL of the blog/news page
-        max_items: Maximum number of articles to extract (default 5)
+        max_items: Maximum number of articles to extract (default 3)
     
     Returns:
         List of update dictionaries with title, url, content, and source_type
+        Returns empty list on error - never raises exception
     """
 
-    html = fetch_page_html(blog_url)
+    try:
+        html = fetch_page_html(blog_url, timeout=8)
 
-    if not html:
+        if not html:
+            return []
+
+        soup = BeautifulSoup(html, "lxml")
+
+        updates = []
+        seen_urls = set()
+
+        links = soup.find_all("a", href=True)
+
+        for link in links:
+            # Stop if we've collected enough articles
+            if len(updates) >= max_items:
+                break
+                
+            title = link.get_text(strip=True)
+            href = link.get("href")
+
+            if not title or not href:
+                continue
+
+            if len(title) < 15:
+                continue
+
+            # Properly join relative URLs
+            full_url = urljoin(blog_url, href)
+
+            # Skip invalid URLs
+            if not is_valid_article_url(full_url):
+                continue
+
+            # Skip duplicates
+            if full_url in seen_urls:
+                continue
+
+            seen_urls.add(full_url)
+
+            # Try to fetch full article content with 6-second timeout
+            # Pass title as fallback if fetch fails
+            article_content = fetch_article_content(
+                full_url, 
+                fallback_title=title,
+                timeout=6
+            )
+            
+            # Use fetched content if available, otherwise use title as fallback
+            content = article_content if article_content else title
+
+            updates.append({
+                "title": title,
+                "url": full_url,
+                "content": content,
+                "source_type": "blog"
+            })
+
+        return updates
+    
+    except Exception as e:
+        # Log error but never raise - return empty list
+        print(f"Error extracting blog updates from {blog_url}: {type(e).__name__}: {e}")
         return []
-
-    soup = BeautifulSoup(html, "lxml")
-
-    updates = []
-    seen_urls = set()
-
-    links = soup.find_all("a", href=True)
-
-    for link in links:
-        title = link.get_text(strip=True)
-        href = link.get("href")
-
-        if not title or not href:
-            continue
-
-        if len(title) < 15:
-            continue
-
-        # Properly join relative URLs
-        full_url = urljoin(blog_url, href)
-
-        # Skip invalid URLs
-        if not is_valid_article_url(full_url):
-            continue
-
-        # Skip duplicates
-        if full_url in seen_urls:
-            continue
-
-        seen_urls.add(full_url)
-
-        # Try to fetch full article content
-        # Pass title as fallback if fetch fails
-        article_content = fetch_article_content(full_url, fallback_title=title)
-        
-        # Use fetched content if available, otherwise use title as fallback
-        content = article_content if article_content else title
-
-        updates.append({
-            "title": title,
-            "url": full_url,
-            "content": content,
-            "source_type": "blog"
-        })
-
-        if len(updates) >= max_items:
-            break
-
-    return updates

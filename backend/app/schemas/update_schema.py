@@ -14,6 +14,9 @@ class CompetitorUpdateCreate(BaseModel):
 class CompetitorUpdateResponse(BaseModel):
     id: int
     competitor_id: int
+    competitor_name: Optional[str] = None
+    competitor_domain: Optional[str] = None
+    
     title: str
     url: str
     content: Optional[str] = None
@@ -24,6 +27,8 @@ class CompetitorUpdateResponse(BaseModel):
     summary: Optional[str] = None
     category: Optional[str] = None
     threat_score: Optional[int] = None
+    threat_level: Optional[str] = None
+    risk_explanation: Optional[str] = None
     threat_reason: Optional[str] = None
 
     prediction: Optional[str] = None

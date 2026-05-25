@@ -2,27 +2,37 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, AlertCircle } from 'lucide-react';
 import { submitFeedback } from '../services/api';
+import UpdateDetailsModal from './UpdateDetailsModal';
 
-const getThreatColor = (threatScore) => {
-  if (threatScore >= 7) return { bg: 'from-threat-high/10', border: 'border-threat-high/50', text: 'text-threat-high', glow: 'glow-red' };
-  if (threatScore >= 4) return { bg: 'from-threat-medium/10', border: 'border-threat-medium/50', text: 'text-threat-medium', glow: 'glow-orange' };
+const getThreatColor = (threatScore, threatLevel) => {
+  // Use threat_level from backend if available, otherwise fall back to score
+  const level = threatLevel?.toLowerCase() || (threatScore >= 7 ? 'high' : threatScore >= 4 ? 'medium' : 'low');
+  
+  if (level === 'high') return { bg: 'from-threat-high/10', border: 'border-threat-high/50', text: 'text-threat-high', glow: 'glow-red' };
+  if (level === 'medium') return { bg: 'from-threat-medium/10', border: 'border-threat-medium/50', text: 'text-threat-medium', glow: 'glow-orange' };
   return { bg: 'from-threat-low/10', border: 'border-threat-low/50', text: 'text-threat-low', glow: 'glow-green' };
 };
 
-const getThreatLabel = (threatScore) => {
+const getThreatLabel = (threatScore, threatLevel) => {
+  // Use threat_level from backend if available
+  if (threatLevel) {
+    return `${threatLevel.toUpperCase()} THREAT`;
+  }
+  // Fall back to score-based label
   if (threatScore >= 7) return 'HIGH THREAT';
   if (threatScore >= 4) return 'MEDIUM THREAT';
   return 'LOW THREAT';
 };
 
 const UpdateCard = ({ update, delay = 0 }) => {
-  const threatColor = getThreatColor(update.threat_score || 0);
+  const threatColor = getThreatColor(update.threat_score || 0, update.threat_level);
 
   const [feedbackType, setFeedbackType] = useState("Useful");
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   const handleSubmitFeedback = async () => {
     setSubmitting(true);
@@ -61,6 +71,20 @@ const UpdateCard = ({ update, delay = 0 }) => {
 
       {/* Content */}
       <div className="relative z-10 space-y-3">
+        {/* Competitor Info */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-neon-cyan">
+              {update.competitor_name || 'Unknown Competitor'}
+            </span>
+            {update.competitor_domain && (
+              <span className="text-xs text-slate-500 px-2 py-1 rounded bg-slate-800/50">
+                {update.competitor_domain}
+              </span>
+            )}
+          </div>
+        </div>
+
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
@@ -103,12 +127,12 @@ const UpdateCard = ({ update, delay = 0 }) => {
               {update.threat_score || 0}/10
             </span>
             <span className="text-xs text-slate-500">
-              {getThreatLabel(update.threat_score || 0)}
+              {getThreatLabel(update.threat_score || 0, update.threat_level)}
             </span>
           </div>
-          {update.source_link && (
+          {update.url && (
             <a
-              href={update.source_link}
+              href={update.url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-neon-cyan hover:text-neon-blue transition-colors duration-300 p-1"
@@ -143,6 +167,14 @@ const UpdateCard = ({ update, delay = 0 }) => {
             <p className="text-xs text-slate-300">{update.recommended_response}</p>
           </div>
         )}
+
+        {/* View Details Button */}
+        <button
+          onClick={() => setShowDetails(true)}
+          className="w-full mt-4 px-4 py-2 rounded-lg bg-gradient-to-r from-neon-cyan/20 to-neon-blue/20 border border-neon-cyan/50 text-neon-cyan hover:border-neon-cyan hover:from-neon-cyan/30 hover:to-neon-blue/30 transition-all duration-300 font-medium text-sm"
+        >
+          View Full Analysis
+        </button>
 
         {/* Feedback section */}
         <div className="mt-5 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
@@ -199,6 +231,14 @@ const UpdateCard = ({ update, delay = 0 }) => {
           )}
         </div>
       </div>
+
+      {/* Update Details Modal */}
+      {showDetails && (
+        <UpdateDetailsModal 
+          update={update} 
+          onClose={() => setShowDetails(false)} 
+        />
+      )}
     </motion.div>
   );
 };

@@ -10,11 +10,29 @@ const axiosInstance = axios.create({
   },
 });
 
-// Error handler
+// Separate instance for scraper requests with longer timeout
+const scraperAxiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 180000, // 3 minutes for scraper requests
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Error handler for regular API calls
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error('API Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Error handler for scraper API calls
+scraperAxiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('Scraper API Error:', error);
     return Promise.reject(error);
   }
 );
@@ -54,10 +72,10 @@ export const scrapeAllCompetitors = async () => {
   }
 };
 
-// Scraper API - Scrape competitors for a specific domain
+// Scraper API - Scrape competitors for a specific domain (with long timeout)
 export const scrapeDomainCompetitors = async (domain) => {
   try {
-    const response = await axiosInstance.post(`/scraper/domain/${domain}`);
+    const response = await scraperAxiosInstance.post(`/scraper/domain/${domain}`);
     return response.data;
   } catch (error) {
     console.error(`Error scraping domain ${domain}:`, error);
