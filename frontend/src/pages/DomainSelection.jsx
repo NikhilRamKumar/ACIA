@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Brain, Smartphone, Zap, Briefcase, ShoppingCart, CreditCard, ArrowRight } from 'lucide-react';
+import { Brain, Smartphone, Zap, Briefcase, ShoppingCart, CreditCard, ArrowRight, CheckCircle } from 'lucide-react';
 
 const DomainSelection = () => {
   const navigate = useNavigate();
@@ -14,8 +14,8 @@ const DomainSelection = () => {
       description: 'Track LLM companies, AI labs, model releases, RAG platforms, pricing updates, and developer tools.',
       examples: 'OpenAI, Anthropic, Perplexity, Mistral, Cohere',
       status: 'Active',
-      gradient: 'from-purple-600/20 to-blue-600/20',
-      borderColor: 'border-purple-500/30',
+      accentColor: 'from-neon-purple to-neon-blue',
+      badgeColor: 'bg-neon-purple/20 border-neon-purple/50 text-neon-purple',
     },
     {
       key: 'mobile_phones',
@@ -23,9 +23,9 @@ const DomainSelection = () => {
       icon: Smartphone,
       description: 'Track smartphone launches, feature upgrades, camera improvements, AI phone features, pricing, and regional releases.',
       examples: 'Apple, Samsung, OnePlus, Xiaomi, Vivo, Oppo',
-      status: 'Ready',
-      gradient: 'from-blue-600/20 to-cyan-600/20',
-      borderColor: 'border-blue-500/30',
+      status: 'Active',
+      accentColor: 'from-blue-500/30 to-neon-cyan/30',
+      badgeColor: 'bg-blue-500/20 border-blue-500/50 text-blue-300',
     },
     {
       key: 'electric_vehicles',
@@ -33,9 +33,9 @@ const DomainSelection = () => {
       icon: Zap,
       description: 'Track EV launches, battery updates, charging networks, pricing changes, and market expansion.',
       examples: 'Tesla, BYD, Rivian, Hyundai, Tata EV',
-      status: 'Ready',
-      gradient: 'from-green-600/20 to-cyan-600/20',
-      borderColor: 'border-green-500/30',
+      status: 'Active',
+      accentColor: 'from-neon-green/30 to-neon-cyan/30',
+      badgeColor: 'bg-neon-green/20 border-neon-green/50 text-neon-green',
     },
     {
       key: 'saas',
@@ -43,9 +43,9 @@ const DomainSelection = () => {
       icon: Briefcase,
       description: 'Track SaaS product launches, integrations, pricing changes, enterprise features, and product positioning.',
       examples: 'Notion, Slack, Linear, Atlassian, HubSpot',
-      status: 'Ready',
-      gradient: 'from-orange-600/20 to-red-600/20',
-      borderColor: 'border-orange-500/30',
+      status: 'Active',
+      accentColor: 'from-orange-500/30 to-red-500/30',
+      badgeColor: 'bg-orange-500/20 border-orange-500/50 text-orange-300',
     },
     {
       key: 'ecommerce',
@@ -53,9 +53,9 @@ const DomainSelection = () => {
       icon: ShoppingCart,
       description: 'Track marketplace offers, seller tools, logistics updates, pricing, customer experience, and growth strategies.',
       examples: 'Amazon, Flipkart, Meesho, Myntra',
-      status: 'Ready',
-      gradient: 'from-pink-600/20 to-purple-600/20',
-      borderColor: 'border-pink-500/30',
+      status: 'Active',
+      accentColor: 'from-pink-500/30 to-neon-purple/30',
+      badgeColor: 'bg-pink-500/20 border-pink-500/50 text-pink-300',
     },
     {
       key: 'fintech',
@@ -63,9 +63,9 @@ const DomainSelection = () => {
       icon: CreditCard,
       description: 'Track payment products, lending updates, banking features, fintech regulations, and partnerships.',
       examples: 'Razorpay, Stripe, Paytm, PhonePe',
-      status: 'Ready',
-      gradient: 'from-yellow-600/20 to-orange-600/20',
-      borderColor: 'border-yellow-500/30',
+      status: 'Active',
+      accentColor: 'from-yellow-500/30 to-orange-500/30',
+      badgeColor: 'bg-yellow-500/20 border-yellow-500/50 text-yellow-300',
     },
   ];
 
@@ -75,24 +75,44 @@ const DomainSelection = () => {
     navigate('/');
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 },
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black relative overflow-hidden pt-20 pb-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-dark-bg via-[#0f172a] to-black relative overflow-hidden pt-20 pb-16 px-4">
       {/* Animated background blobs */}
       <motion.div
-        className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-blue-600/10 to-purple-600/10 rounded-full blur-3xl"
+        className="absolute top-0 -left-1/4 w-96 h-96 bg-gradient-to-br from-neon-blue/10 to-neon-purple/10 rounded-full blur-3xl"
         animate={{
           x: [0, 100, 0],
-          y: [0, 50, 0],
+          y: [0, 60, 0],
         }}
-        transition={{ duration: 12, repeat: Infinity }}
+        transition={{ duration: 15, repeat: Infinity }}
       />
       <motion.div
-        className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-br from-cyan-600/10 to-blue-600/10 rounded-full blur-3xl"
+        className="absolute bottom-0 -right-1/4 w-96 h-96 bg-gradient-to-br from-neon-cyan/10 to-neon-blue/10 rounded-full blur-3xl"
         animate={{
           x: [0, -100, 0],
-          y: [0, -50, 0],
+          y: [0, -60, 0],
         }}
-        transition={{ duration: 14, repeat: Infinity, delay: 2 }}
+        transition={{ duration: 18, repeat: Infinity, delay: 2 }}
       />
 
       {/* Content */}
@@ -104,125 +124,139 @@ const DomainSelection = () => {
       >
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Choose Intelligence Domain
+          <motion.div
+            className="inline-block mb-4"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+          >
+            <div className="px-4 py-2 rounded-full bg-gradient-to-r from-neon-blue/20 to-neon-cyan/20 border border-neon-cyan/30">
+              <p className="text-neon-cyan text-xs font-semibold">Domain Selection</p>
+            </div>
+          </motion.div>
+          <h1 className="text-4xl md:text-6xl font-black mb-4 leading-tight">
+            <span className="bg-gradient-to-r from-neon-cyan via-neon-blue to-neon-purple bg-clip-text text-transparent">
+              Choose Your Intelligence Domain
             </span>
           </h1>
-          <p className="text-slate-400 text-lg">Select the market you want ACIA to monitor.</p>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            Select the market ACIA should monitor and analyze. Each domain provides specialized competitive intelligence and strategic insights.
+          </p>
         </motion.div>
 
         {/* Domain Cards Grid */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
           {domains.map((domain, index) => {
             const Icon = domain.icon;
             return (
               <motion.div
                 key={domain.key}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + index * 0.05, duration: 0.6 }}
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: `0 0 30px rgba(${
-                    domain.key === 'ai_genai' ? '168, 85, 247' :
-                    domain.key === 'mobile_phones' ? '59, 130, 246' :
-                    domain.key === 'electric_vehicles' ? '34, 197, 94' :
-                    domain.key === 'saas' ? '249, 115, 22' :
-                    domain.key === 'ecommerce' ? '236, 72, 153' :
-                    '250, 204, 21'
-                  }, 0.3)`,
-                }}
+                variants={itemVariants}
+                whileHover={{ y: -8 }}
                 onClick={() => handleDomainSelect(domain)}
-                className="cursor-pointer group"
+                className="cursor-pointer group h-full"
               >
-                <div
-                  className={`backdrop-blur-xl bg-gradient-to-br ${domain.gradient} to-slate-900/50 border ${domain.borderColor} rounded-xl p-6 h-full transition-all duration-300 relative overflow-hidden`}
-                >
-                  {/* Glow effect on hover */}
+                <div className="relative overflow-hidden rounded-2xl backdrop-blur-xl bg-gradient-to-br from-dark-card/60 to-dark-bg/60 border border-dark-border/30 hover:border-neon-blue/40 transition-all duration-300 h-full p-6 flex flex-col">
+                  {/* Animated gradient background on hover */}
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br ${domain.accentColor}`}
                     initial={{ opacity: 0 }}
                     whileHover={{ opacity: 1 }}
                   />
 
+                  {/* Grid pattern overlay */}
+                  <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300">
+                    <div className="absolute inset-0" style={{
+                      backgroundImage: 'linear-gradient(45deg, #00d4ff 1px, transparent 1px)',
+                      backgroundSize: '20px 20px'
+                    }} />
+                  </div>
+
                   {/* Content */}
-                  <div className="relative z-10">
-                    {/* Icon */}
-                    <motion.div
-                      className="mb-4"
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                    >
-                      <Icon className="w-12 h-12 text-cyan-400 drop-shadow-lg" />
-                    </motion.div>
+                  <div className="relative z-10 flex flex-col h-full">
+                    {/* Icon and Status */}
+                    <div className="flex items-start justify-between mb-4">
+                      <motion.div
+                        className="p-3 rounded-lg bg-gradient-to-br from-neon-blue/20 to-neon-cyan/20 border border-neon-blue/30 group-hover:border-neon-cyan/50 transition-colors"
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                      >
+                        <Icon className="w-6 h-6 text-neon-cyan" />
+                      </motion.div>
+                      <motion.div
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold border flex items-center gap-1 ${domain.badgeColor}`}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + index * 0.05 }}
+                      >
+                        <CheckCircle className="w-3 h-3" />
+                        {domain.status}
+                      </motion.div>
+                    </div>
 
                     {/* Title */}
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-neon-cyan transition-colors">
                       {domain.name}
                     </h3>
 
                     {/* Description */}
-                    <p className="text-slate-400 text-sm mb-4 leading-relaxed">
+                    <p className="text-slate-400 text-sm mb-5 leading-relaxed flex-grow">
                       {domain.description}
                     </p>
 
                     {/* Examples */}
-                    <div className="mb-4">
-                      <p className="text-slate-500 text-xs font-semibold mb-2">Key Players:</p>
+                    <div className="mb-6 pb-6 border-b border-dark-border/20">
+                      <p className="text-slate-500 text-xs font-semibold mb-3">Featured Competitors:</p>
                       <div className="flex flex-wrap gap-2">
-                        {domain.examples.split(', ').map((example, i) => (
-                          <span
+                        {domain.examples.split(', ').slice(0, 3).map((example, i) => (
+                          <motion.span
                             key={i}
-                            className="bg-slate-800/50 border border-slate-700/50 rounded px-2 py-1 text-xs text-slate-300 hover:bg-slate-700/50 transition-colors"
+                            className="bg-dark-card/50 border border-dark-border/50 rounded-full px-3 py-1 text-xs text-slate-300 hover:bg-dark-card hover:border-neon-cyan/30 transition-all"
+                            whileHover={{ scale: 1.05 }}
                           >
                             {example}
-                          </span>
+                          </motion.span>
                         ))}
                       </div>
                     </div>
 
                     {/* CTA */}
                     <motion.div
-                      className="flex items-center gap-2 text-cyan-400 font-semibold text-sm group-hover:text-cyan-300 transition-colors"
+                      className="flex items-center gap-2 text-neon-cyan font-semibold text-sm group-hover:text-neon-blue transition-colors mt-auto"
                       whileHover={{ x: 5 }}
                     >
-                      Select Domain
-                      <ArrowRight className="w-4 h-4" />
+                      Enter Domain
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </motion.div>
                   </div>
 
-                  {/* Border animation on hover */}
-                  <motion.div
-                    className="absolute inset-0 border rounded-xl pointer-events-none"
-                    initial={{ borderColor: 'rgba(0, 212, 255, 0.1)' }}
-                    whileHover={{ borderColor: 'rgba(0, 212, 255, 0.5)' }}
-                    style={{ borderWidth: '1px' }}
-                  />
+                  {/* Animated border glow */}
+                  <div className="absolute inset-0 rounded-2xl border border-neon-blue/0 group-hover:border-neon-cyan/50 transition-all duration-300 pointer-events-none" />
                 </div>
               </motion.div>
             );
           })}
         </motion.div>
 
-        {/* Info Section */}
+        {/* Info Card */}
         <motion.div
-          className="mt-12 backdrop-blur-xl bg-slate-900/30 border border-slate-700/50 rounded-xl p-6 text-center"
+          className="mt-12 rounded-2xl backdrop-blur-xl bg-gradient-to-br from-dark-card/50 to-dark-bg/50 border border-neon-blue/20 p-8 text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.6 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          whileHover={{ borderColor: 'rgba(0, 240, 255, 0.4)' }}
         >
-          <p className="text-slate-400 text-sm">
-            💡 You can change your domain selection anytime from the dashboard. Each domain provides specialized competitive intelligence monitoring.
+          <p className="text-slate-300 text-base leading-relaxed max-w-2xl mx-auto">
+            <span className="text-neon-cyan font-semibold">💡 Pro Tip:</span> You can change your domain selection anytime from the dashboard's navigation menu. Each domain provides specialized competitive intelligence, threat analysis, and market trend reports.
           </p>
         </motion.div>
       </motion.div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ExternalLink, AlertCircle } from 'lucide-react';
+import { ExternalLink, AlertCircle, Zap, TrendingUp, Lightbulb } from 'lucide-react';
 import { submitFeedback } from '../services/api';
 import UpdateDetailsModal from './UpdateDetailsModal';
 
@@ -8,25 +8,43 @@ const getThreatColor = (threatScore, threatLevel) => {
   // Use threat_level from backend if available, otherwise fall back to score
   const level = threatLevel?.toLowerCase() || (threatScore >= 7 ? 'high' : threatScore >= 4 ? 'medium' : 'low');
   
-  if (level === 'high') return { bg: 'from-threat-high/10', border: 'border-threat-high/50', text: 'text-threat-high', glow: 'glow-red' };
-  if (level === 'medium') return { bg: 'from-threat-medium/10', border: 'border-threat-medium/50', text: 'text-threat-medium', glow: 'glow-orange' };
-  return { bg: 'from-threat-low/10', border: 'border-threat-low/50', text: 'text-threat-low', glow: 'glow-green' };
+  if (level === 'high') return { 
+    bg: 'from-threat-high/10', 
+    border: 'border-threat-high/30 hover:border-threat-high/60', 
+    text: 'text-threat-high', 
+    badge: 'bg-threat-high/20 border-threat-high/50 text-threat-high',
+    icon: 'text-threat-high',
+    glow: 'shadow-lg shadow-threat-high/20'
+  };
+  if (level === 'medium') return { 
+    bg: 'from-threat-medium/10', 
+    border: 'border-threat-medium/30 hover:border-threat-medium/60', 
+    text: 'text-threat-medium', 
+    badge: 'bg-threat-medium/20 border-threat-medium/50 text-threat-medium',
+    icon: 'text-threat-medium',
+    glow: 'shadow-lg shadow-threat-medium/20'
+  };
+  return { 
+    bg: 'from-threat-low/10', 
+    border: 'border-threat-low/30 hover:border-threat-low/60', 
+    text: 'text-threat-low', 
+    badge: 'bg-threat-low/20 border-threat-low/50 text-threat-low',
+    icon: 'text-threat-low',
+    glow: 'shadow-lg shadow-threat-low/20'
+  };
 };
 
 const getThreatLabel = (threatScore, threatLevel) => {
-  // Use threat_level from backend if available
   if (threatLevel) {
-    return `${threatLevel.toUpperCase()} THREAT`;
+    return threatLevel.charAt(0).toUpperCase() + threatLevel.slice(1);
   }
-  // Fall back to score-based label
-  if (threatScore >= 7) return 'HIGH THREAT';
-  if (threatScore >= 4) return 'MEDIUM THREAT';
-  return 'LOW THREAT';
+  if (threatScore >= 7) return 'High';
+  if (threatScore >= 4) return 'Medium';
+  return 'Low';
 };
 
 const UpdateCard = ({ update, delay = 0 }) => {
   const threatColor = getThreatColor(update.threat_score || 0, update.threat_level);
-
   const [feedbackType, setFeedbackType] = useState("Useful");
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -46,191 +64,246 @@ const UpdateCard = ({ update, delay = 0 }) => {
         comment: comment
       });
 
-      setFeedbackMessage("Feedback submitted successfully.");
+      setFeedbackMessage("✓ Feedback submitted successfully.");
       setComment("");
       setRating(5);
       setFeedbackType("Useful");
     } catch (error) {
       console.error(error);
-      setFeedbackMessage("Failed to submit feedback.");
+      setFeedbackMessage("✗ Failed to submit feedback.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5 }}
-      whileHover={{ y: -5 }}
-      className={`relative overflow-hidden rounded-lg bg-gradient-to-br ${threatColor.bg} to-dark-bg border ${threatColor.border} backdrop-blur-glass p-5 transition-all duration-300 hover:border-opacity-100 group`}
-    >
-      {/* Threat score indicator */}
-      <div className={`absolute top-0 right-0 w-1 h-full bg-gradient-to-b ${threatColor.text === 'text-threat-high' ? 'from-threat-high to-threat-high/50' : threatColor.text === 'text-threat-medium' ? 'from-threat-medium to-threat-medium/50' : 'from-threat-low to-threat-low/50'}`} />
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay, duration: 0.5 }}
+        whileHover={{ y: -8 }}
+        className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${threatColor.bg} to-dark-bg border ${threatColor.border} backdrop-blur-xl p-6 transition-all duration-300 group h-full flex flex-col ${threatColor.glow}`}
+      >
+        {/* Top accent line */}
+        <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-${threatColor.text.split('-')[1]} to-transparent opacity-50`} />
 
-      {/* Content */}
-      <div className="relative z-10 space-y-3">
-        {/* Competitor Info */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-neon-cyan">
-              {update.competitor_name || 'Unknown Competitor'}
-            </span>
-            {update.competitor_domain && (
-              <span className="text-xs text-slate-500 px-2 py-1 rounded bg-slate-800/50">
-                {update.competitor_domain}
-              </span>
-            )}
-          </div>
-        </div>
+        {/* Content */}
+        <div className="relative z-10 space-y-4 flex-grow flex flex-col">
+          {/* Header Row */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-grow">
+              {/* Company and Domain */}
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-xs font-bold text-neon-cyan">
+                  Company: {update.competitor_name || 'Unknown'}
+                </p>
+              </div>
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <h3 className="text-white font-semibold text-sm group-hover:text-neon-cyan transition-colors duration-300 line-clamp-2">
-              {update.title || 'Untitled Update'}
-            </h3>
-          </div>
-          <div className={`flex-shrink-0 p-2 rounded-lg bg-${threatColor.text.split('-')[1]}/10 ${threatColor.text}`}>
-            <AlertCircle size={16} />
-          </div>
-        </div>
+              {/* Title */}
+              <h3 className="text-white font-bold text-sm group-hover:text-neon-cyan transition-colors duration-300 line-clamp-2 mb-1">
+                {update.title || 'Untitled Update'}
+              </h3>
 
-        {/* Summary */}
-        <p className="text-slate-400 text-sm line-clamp-2">
-          {update.summary || update.description || 'No summary available'}
-        </p>
+              {/* Domain Badge */}
+              {update.competitor_domain && (
+                <p className="text-xs text-slate-400">
+                  Domain: <span className="text-neon-cyan font-semibold">{update.competitor_domain}</span>
+                </p>
+              )}
+            </div>
 
-        {/* Badges */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {update.category && (
-            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-              update.category === 'Pricing Change'
-                ? 'bg-gradient-to-r from-violet-500/20 to-yellow-500/20 text-yellow-300 border border-yellow-500/50'
-                : 'bg-neon-purple/10 text-neon-purple border border-neon-purple/30'
-            }`}>
-              {update.category === 'Pricing Change' ? '💰 Pricing Change Detected' : update.category}
-            </span>
-          )}
-          {update.source_type && (
-            <span className="px-3 py-1 rounded-full text-xs font-medium bg-neon-blue/10 text-neon-blue border border-neon-blue/30">
-              {update.source_type}
-            </span>
-          )}
-        </div>
-
-        {/* Threat score and source */}
-        <div className="flex items-center justify-between pt-2 border-t border-white/10">
-          <div className="flex items-center gap-2">
-            <span className={`px-2 py-1 rounded text-xs font-bold ${threatColor.text} bg-white/5`}>
-              {update.threat_score || 0}/10
-            </span>
-            <span className="text-xs text-slate-500">
-              {getThreatLabel(update.threat_score || 0, update.threat_level)}
-            </span>
-          </div>
-          {update.url && (
-            <a
-              href={update.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neon-cyan hover:text-neon-blue transition-colors duration-300 p-1"
+            {/* Threat Icon */}
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              className={`flex-shrink-0 p-2 rounded-lg bg-white/5 border ${threatColor.text === 'text-threat-high' ? 'border-threat-high/30' : threatColor.text === 'text-threat-medium' ? 'border-threat-medium/30' : 'border-threat-low/30'}`}
             >
-              <ExternalLink size={16} />
-            </a>
-          )}
-        </div>
-
-        {/* Threat reason */}
-        {update.threat_reason && (
-          <p className="text-xs text-slate-500 italic border-l-2 border-neon-purple/50 pl-3">
-            {update.threat_reason}
-          </p>
-        )}
-
-        {/* Prediction section */}
-        {update.prediction && (
-          <div className="rounded-xl border border-neon-cyan/20 bg-neon-cyan/10 p-4 space-y-2">
-            <h4 className="text-sm font-semibold text-neon-cyan">Predicted Next Move</h4>
-            <p className="text-xs text-slate-300">{update.prediction}</p>
-            {update.confidence_level && (
-              <p className="text-xs text-slate-400">Confidence: {update.confidence_level}</p>
-            )}
+              <AlertCircle className={`w-5 h-5 ${threatColor.icon}`} />
+            </motion.div>
           </div>
-        )}
 
-        {/* Recommended response section */}
-        {update.recommended_response && (
-          <div className="rounded-xl border border-neon-purple/20 bg-neon-purple/10 p-4 space-y-2">
-            <h4 className="text-sm font-semibold text-neon-purple">Recommended Response</h4>
-            <p className="text-xs text-slate-300">{update.recommended_response}</p>
-          </div>
-        )}
-
-        {/* View Details Button */}
-        <button
-          onClick={() => setShowDetails(true)}
-          className="w-full mt-4 px-4 py-2 rounded-lg bg-gradient-to-r from-neon-cyan/20 to-neon-blue/20 border border-neon-cyan/50 text-neon-cyan hover:border-neon-cyan hover:from-neon-cyan/30 hover:to-neon-blue/30 transition-all duration-300 font-medium text-sm"
-        >
-          View Full Analysis
-        </button>
-
-        {/* Feedback section */}
-        <div className="mt-5 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
-          <p className="text-sm font-semibold text-blue-300">
-            Feedback
+          {/* Summary */}
+          <p className="text-slate-400 text-sm line-clamp-2 leading-relaxed">
+            {update.summary || update.description || 'No summary available'}
           </p>
 
-          <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-            <select
-              value={feedbackType}
-              onChange={(e) => setFeedbackType(e.target.value)}
-              className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 outline-none"
-            >
-              <option value="Useful">Useful</option>
-              <option value="Not Useful">Not Useful</option>
-              <option value="Accurate">Accurate</option>
-              <option value="Not Accurate">Not Accurate</option>
-              <option value="Too Generic">Too Generic</option>
-              <option value="Needs More Detail">Needs More Detail</option>
-            </select>
-
-            <select
-              value={rating}
-              onChange={(e) => setRating(e.target.value)}
-              className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 outline-none"
-            >
-              <option value="5">5 - Excellent</option>
-              <option value="4">4 - Good</option>
-              <option value="3">3 - Average</option>
-              <option value="2">2 - Poor</option>
-              <option value="1">1 - Bad</option>
-            </select>
+          {/* Category and Source Badges */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {update.category && (
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-neon-purple/20 to-neon-blue/20 text-neon-purple border border-neon-purple/40 whitespace-nowrap"
+              >
+                {update.category === 'Pricing Change' ? '💰 ' : ''}
+                {update.category}
+              </motion.span>
+            )}
+            {update.source_type && (
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                className="px-3 py-1 rounded-full text-xs font-semibold bg-neon-blue/20 text-neon-blue border border-neon-blue/40 whitespace-nowrap"
+              >
+                {update.source_type}
+              </motion.span>
+            )}
           </div>
 
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Write optional feedback..."
-            className="mt-3 w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 outline-none min-h-[80px]"
-          />
+          {/* Threat Score and Details */}
+          <div className="flex items-center justify-between pt-4 border-t border-dark-border/30">
+            <div className="flex items-center gap-3">
+              <div className={`flex items-center justify-center w-12 h-12 rounded-lg border-2 font-bold text-lg ${threatColor.badge}`}>
+                {update.threat_score !== undefined ? `${update.threat_score}/10` : 'N/A'}
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-semibold">Threat Level</p>
+                <p className={`text-sm font-bold ${threatColor.text}`}>
+                  {getThreatLabel(update.threat_score || 0, update.threat_level)} Risk
+                </p>
+              </div>
+            </div>
 
-          <button
-            onClick={handleSubmitFeedback}
-            disabled={submitting}
-            className="mt-3 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition"
+            {/* Source Link */}
+            {update.url && (
+              <motion.a
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.95 }}
+                href={update.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neon-cyan hover:text-neon-blue transition-colors duration-300 p-2 rounded-lg hover:bg-neon-cyan/10"
+              >
+                <ExternalLink size={18} />
+              </motion.a>
+            )}
+          </div>
+
+          {/* Threat Reason */}
+          {update.threat_reason && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-xs text-slate-400 italic border-l-2 border-neon-purple/40 pl-3 py-2"
+            >
+              <p className="font-semibold text-slate-300 mb-1">Why this matters:</p>
+              {update.threat_reason}
+            </motion.div>
+          )}
+
+          {/* Prediction Section */}
+          {update.prediction && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="rounded-lg border border-neon-cyan/30 bg-neon-cyan/10 p-3 space-y-2 mt-2"
+            >
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-neon-cyan" />
+                <h4 className="text-xs font-bold text-neon-cyan">Predicted Next Move</h4>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">{update.prediction}</p>
+              {update.confidence_level && (
+                <p className="text-xs text-slate-400 font-semibold">
+                  Confidence: <span className="text-neon-cyan">{update.confidence_level}</span>
+                </p>
+              )}
+            </motion.div>
+          )}
+
+          {/* Recommended Response Section */}
+          {update.recommended_response && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="rounded-lg border border-neon-purple/30 bg-neon-purple/10 p-3 space-y-2 mt-2"
+            >
+              <div className="flex items-center gap-2">
+                <Lightbulb className="w-4 h-4 text-neon-purple" />
+                <h4 className="text-xs font-bold text-neon-purple">Recommended Response</h4>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">{update.recommended_response}</p>
+            </motion.div>
+          )}
+
+          {/* View Details Button */}
+          <motion.button
+            onClick={() => setShowDetails(true)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full mt-4 px-4 py-2.5 rounded-lg bg-gradient-to-r from-neon-blue/20 to-neon-cyan/20 border border-neon-cyan/40 hover:border-neon-cyan/70 text-neon-cyan hover:text-neon-blue font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2"
           >
-            {submitting ? "Submitting..." : "Submit Feedback"}
-          </button>
+            <TrendingUp className="w-4 h-4" />
+            Read Full Analysis
+          </motion.button>
 
-          {feedbackMessage && (
-            <p className="text-xs text-slate-300 mt-3">
-              {feedbackMessage}
-            </p>
-          )}
+          {/* Feedback Section */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-4 rounded-lg border border-blue-500/20 bg-blue-500/10 p-4 space-y-3"
+          >
+            <div className="flex items-center gap-2">
+              <div className="p-1 rounded-lg bg-blue-500/20">
+                <Lightbulb className="w-4 h-4 text-blue-300" />
+              </div>
+              <p className="text-xs font-bold text-blue-300">Help Improve ACIA</p>
+            </div>
+
+            <div className="space-y-3">
+              <select
+                value={feedbackType}
+                onChange={(e) => setFeedbackType(e.target.value)}
+                className="w-full bg-dark-card border border-dark-border/50 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none focus:border-neon-blue/50 transition-colors"
+              >
+                <option value="Useful">Useful</option>
+                <option value="Not Useful">Not Useful</option>
+                <option value="Accurate">Accurate</option>
+                <option value="Not Accurate">Not Accurate</option>
+                <option value="Too Generic">Too Generic</option>
+                <option value="Needs More Detail">Needs More Detail</option>
+              </select>
+
+              <select
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+                className="w-full bg-dark-card border border-dark-border/50 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none focus:border-neon-blue/50 transition-colors"
+              >
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Good</option>
+                <option value="3">3 - Average</option>
+                <option value="2">2 - Poor</option>
+                <option value="1">1 - Bad</option>
+              </select>
+
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Optional feedback..."
+                className="w-full bg-dark-card border border-dark-border/50 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none focus:border-neon-blue/50 transition-colors min-h-[60px] resize-none"
+              />
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleSubmitFeedback}
+                disabled={submitting}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-300"
+              >
+                {submitting ? "Submitting..." : "Submit Feedback"}
+              </motion.button>
+
+              {feedbackMessage && (
+                <p className={`text-xs font-semibold ${feedbackMessage.startsWith('✓') ? 'text-threat-low' : 'text-threat-high'}`}>
+                  {feedbackMessage}
+                </p>
+              )}
+            </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Update Details Modal */}
       {showDetails && (
@@ -239,7 +312,7 @@ const UpdateCard = ({ update, delay = 0 }) => {
           onClose={() => setShowDetails(false)} 
         />
       )}
-    </motion.div>
+    </>
   );
 };
 

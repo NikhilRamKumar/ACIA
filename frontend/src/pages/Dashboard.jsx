@@ -247,113 +247,161 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-bg via-dark-bg to-dark-card pt-20 px-4 pb-12">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-dark-bg via-[#0f172a] to-black pt-20 px-4 pb-12">
+      {/* Animated background blobs */}
+      <motion.div
+        className="fixed top-0 -left-1/4 w-96 h-96 bg-gradient-to-br from-neon-blue/5 to-neon-purple/5 rounded-full blur-3xl pointer-events-none"
+        animate={{
+          x: [0, 80, 0],
+          y: [0, 50, 0],
+        }}
+        transition={{ duration: 15, repeat: Infinity }}
+      />
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        {/* Hero Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-12"
+          transition={{ duration: 0.7 }}
+          className="mb-16"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">
-            <span className="bg-gradient-to-r from-neon-blue via-neon-cyan to-neon-purple bg-clip-text text-transparent">
-              ACIA {selectedDomain} Intelligence Dashboard
+          <motion.div
+            className="inline-block mb-4"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+          >
+            <div className="px-4 py-2 rounded-full bg-gradient-to-r from-neon-blue/20 to-neon-cyan/20 border border-neon-cyan/30">
+              <p className="text-neon-cyan text-xs font-semibold">Intelligence Dashboard</p>
+            </div>
+          </motion.div>
+
+          <h1 className="text-4xl md:text-6xl font-black mb-4 leading-tight">
+            <span className="bg-gradient-to-r from-neon-cyan via-neon-blue to-neon-purple bg-clip-text text-transparent">
+              {selectedDomain} Intelligence Center
             </span>
           </h1>
-          <p className="text-slate-400 text-lg">{getDomainSubtitle(selectedDomain)}</p>
+          <p className="text-slate-300 text-lg max-w-2xl leading-relaxed">
+            {getDomainSubtitle(selectedDomain)}
+          </p>
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+        >
           <StatCard
             icon={Database}
             title="Total Competitors"
             value={stats.totalCompetitors}
             subtitle="Tracked competitors"
-            delay={0}
+            delay={0.2}
           />
           <StatCard
             icon={Activity}
             title="Total Updates"
             value={stats.totalUpdates}
             subtitle="Competitor updates"
-            delay={0.1}
+            delay={0.25}
           />
           <StatCard
             icon={AlertTriangle}
             title="High Threat"
             value={stats.highThreatUpdates}
             subtitle="Updates requiring attention"
-            delay={0.2}
+            delay={0.3}
           />
           <StatCard
             icon={CheckCircle}
             title="Analyzed"
             value={stats.analyzedUpdates}
             subtitle="Updates with threat scores"
-            delay={0.3}
+            delay={0.35}
           />
-        </div>
+        </motion.div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
           className="mb-12"
         >
-          <div className="bg-gradient-to-r from-dark-card to-dark-bg border border-dark-border/50 backdrop-blur-glass rounded-xl p-8">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <Zap className="w-6 h-6 text-neon-blue" />
-              Intelligence Operations
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <ActionButton
-                icon={Database}
-                onClick={handleScrapeAll}
-                loading={actionLoading.scrape}
-                variant="primary"
-                delay={0.4}
-              >
-                Scrape Domain
-              </ActionButton>
-              <ActionButton
-                icon={Brain}
-                onClick={handleSummarizeAll}
-                loading={actionLoading.summarize}
-                variant="secondary"
-                delay={0.5}
-              >
-                Summarize All
-              </ActionButton>
-              <ActionButton
-                icon={TrendingUp}
-                onClick={handleAnalyzeAll}
-                loading={actionLoading.analyze}
-                variant="success"
-                delay={0.6}
-              >
-                Analyze All
-              </ActionButton>
-              <ActionButton
-                icon={Brain}
-                onClick={handlePredictAll}
-                loading={actionLoading.predict}
-                variant="primary"
-                delay={0.7}
-              >
-                Predict All
-              </ActionButton>
-              <ActionButton
-                icon={Tag}
-                onClick={handleDetectPricing}
-                loading={actionLoading.pricing}
-                variant="warning"
-                delay={0.8}
-              >
-                Detect Pricing
-              </ActionButton>
+          <div className="relative overflow-hidden rounded-2xl backdrop-blur-xl bg-gradient-to-br from-dark-card/60 to-dark-bg/60 border border-neon-blue/20 p-8">
+            {/* Grid pattern overlay */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute inset-0" style={{
+                backgroundImage: 'linear-gradient(45deg, #00d4ff 1px, transparent 1px)',
+                backgroundSize: '20px 20px'
+              }} />
+            </div>
+
+            <div className="relative z-10">
+              <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+                  className="p-2 rounded-lg bg-gradient-to-br from-neon-blue/20 to-neon-cyan/20"
+                >
+                  <Zap className="w-5 h-5 text-neon-cyan" />
+                </motion.div>
+                Domain Intelligence Operations
+              </h2>
+              <p className="text-slate-400 text-sm mb-6">
+                Execute AI analysis, threat detection, and market forecasting for {selectedDomain}
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <ActionButton
+                  icon={Database}
+                  onClick={handleScrapeAll}
+                  loading={actionLoading.scrape}
+                  variant="primary"
+                  delay={0.4}
+                >
+                  Scrape Domain
+                </ActionButton>
+                <ActionButton
+                  icon={Brain}
+                  onClick={handleSummarizeAll}
+                  loading={actionLoading.summarize}
+                  variant="secondary"
+                  delay={0.45}
+                >
+                  Summarize
+                </ActionButton>
+                <ActionButton
+                  icon={TrendingUp}
+                  onClick={handleAnalyzeAll}
+                  loading={actionLoading.analyze}
+                  variant="success"
+                  delay={0.5}
+                >
+                  Analyze Threats
+                </ActionButton>
+                <ActionButton
+                  icon={Brain}
+                  onClick={handlePredictAll}
+                  loading={actionLoading.predict}
+                  variant="primary"
+                  delay={0.55}
+                >
+                  Predict Moves
+                </ActionButton>
+                <ActionButton
+                  icon={Tag}
+                  onClick={handleDetectPricing}
+                  loading={actionLoading.pricing}
+                  variant="primary"
+                  delay={0.6}
+                >
+                  Pricing Intel
+                </ActionButton>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -364,19 +412,24 @@ const Dashboard = () => {
         {/* Market Trend Summary */}
         <MarketTrendSummary trendData={trendData} loading={trendLoading} />
 
-        {/* Recent Updates */}
+        {/* Recent Updates Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.6 }}
         >
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Activity className="w-6 h-6 text-neon-cyan" />
-              Recent Updates
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-neon-cyan/20 to-neon-blue/20">
+                <Activity className="w-5 h-5 text-neon-cyan" />
+              </div>
+              Recent Intelligence Updates
             </h2>
+            {recentUpdates.length > 0 && (
+              <span className="text-sm text-slate-400">Showing latest {recentUpdates.length} updates</span>
+            )}
           </div>
-          
+
           {recentUpdates.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {recentUpdates.map((update, index) => (
@@ -384,10 +437,20 @@ const Dashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-slate-400">
-              <Activity size={48} className="mx-auto mb-4 opacity-50" />
-              <p>No updates available yet. Try scraping competitors!</p>
-            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="text-center py-16 rounded-2xl backdrop-blur-xl bg-gradient-to-br from-dark-card/40 to-dark-bg/40 border border-dark-border/30"
+            >
+              <div className="inline-block p-3 rounded-lg bg-gradient-to-br from-neon-blue/20 to-neon-cyan/20 mb-4">
+                <Activity size={32} className="text-neon-cyan" />
+              </div>
+              <p className="text-slate-400 text-lg mb-2">No updates available yet</p>
+              <p className="text-slate-500 text-sm">
+                Click "Scrape Domain" to collect competitor updates and generate intelligence
+              </p>
+            </motion.div>
           )}
         </motion.div>
       </div>
