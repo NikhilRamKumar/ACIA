@@ -1,8 +1,20 @@
 import os
 import json
-import faiss
 import numpy as np
-from sentence_transformers import SentenceTransformer
+
+# Optional imports for vector search
+try:
+    import faiss
+    VECTOR_AVAILABLE = True
+except ImportError:
+    faiss = None
+    VECTOR_AVAILABLE = False
+
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:
+    SentenceTransformer = None
+    VECTOR_AVAILABLE = False
 
 
 VECTOR_DIR = "vector_store"
@@ -11,7 +23,12 @@ METADATA_PATH = os.path.join(VECTOR_DIR, "metadata.json")
 
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
-model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+# Initialize model and index lazily only if vector search is available
+model = None
+index = None
+
+if VECTOR_AVAILABLE:
+    model = SentenceTransformer(EMBEDDING_MODEL_NAME)
 
 
 def ensure_vector_dir():
@@ -22,7 +39,10 @@ def ensure_vector_dir():
 def get_embedding(text: str):
     """
     Converts text into embedding vector.
+    Only works if vector search is available.
     """
+    if not VECTOR_AVAILABLE:
+        return None
 
     if not text:
         text = ""
@@ -51,6 +71,9 @@ def save_metadata(metadata):
 
 
 def load_or_create_index(dimension: int = 384):
+    if not VECTOR_AVAILABLE:
+        return None
+    
     ensure_vector_dir()
 
     if os.path.exists(INDEX_PATH):
@@ -61,6 +84,9 @@ def load_or_create_index(dimension: int = 384):
 
 
 def save_index(index):
+    if not VECTOR_AVAILABLE:
+        return
+    
     ensure_vector_dir()
     faiss.write_index(index, INDEX_PATH)
 
@@ -85,7 +111,14 @@ def index_single_update(update):
     """
     Adds one competitor update into FAISS vector index.
     Avoids duplicate indexing using update_id.
+    Returns disabled message if vector search is not available.
     """
+    if not VECTOR_AVAILABLE:
+        return {
+            "status": "disabled",
+            "message": "Vector search is disabled in deployment because FAISS is not installed.",
+            "update_id": update.id
+        }
 
     metadata = load_metadata()
 
@@ -126,7 +159,14 @@ def rebuild_index_from_updates(updates):
     """
     Rebuilds FAISS index from all stored competitor updates.
     Useful when index file is missing or corrupted.
+    Returns disabled message if vector search is not available.
     """
+    if not VECTOR_AVAILABLE:
+        return {
+            "status": "disabled",
+            "message": "Vector search is disabled in deployment because FAISS is not installed.",
+            "indexed_count": 0
+        }
 
     ensure_vector_dir()
 
@@ -168,7 +208,10 @@ def rebuild_index_from_updates(updates):
 def search_similar_updates(query_text: str, top_k: int = 3):
     """
     Searches FAISS index and returns top similar updates.
+    Returns empty list if vector search is not available.
     """
+    if not VECTOR_AVAILABLE:
+        return []
 
     metadata = load_metadata()
 

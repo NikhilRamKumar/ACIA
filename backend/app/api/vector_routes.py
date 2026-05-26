@@ -7,7 +7,8 @@ from app.services.vector_service import (
     index_single_update,
     rebuild_index_from_updates,
     search_similar_updates,
-    build_text_for_embedding
+    build_text_for_embedding,
+    VECTOR_AVAILABLE
 )
 
 router = APIRouter(
@@ -18,6 +19,13 @@ router = APIRouter(
 
 @router.post("/index/{update_id}")
 def index_update(update_id: int, db: Session = Depends(get_db)):
+    if not VECTOR_AVAILABLE:
+        return {
+            "status": "disabled",
+            "message": "Vector search is disabled in deployment because FAISS is not installed.",
+            "update_id": update_id
+        }
+
     update = db.query(CompetitorUpdate).filter(
         CompetitorUpdate.id == update_id
     ).first()
@@ -35,6 +43,13 @@ def index_update(update_id: int, db: Session = Depends(get_db)):
 
 @router.post("/index-all")
 def index_all_updates(db: Session = Depends(get_db)):
+    if not VECTOR_AVAILABLE:
+        return {
+            "status": "disabled",
+            "message": "Vector search is disabled in deployment because FAISS is not installed.",
+            "indexed_count": 0
+        }
+
     updates = db.query(CompetitorUpdate).all()
 
     if not updates:
@@ -54,6 +69,14 @@ def get_similar_updates(
     top_k: int = 3,
     db: Session = Depends(get_db)
 ):
+    if not VECTOR_AVAILABLE:
+        return {
+            "status": "disabled",
+            "message": "Vector search is disabled in deployment because FAISS is not installed.",
+            "update_id": update_id,
+            "similar_updates": []
+        }
+
     update = db.query(CompetitorUpdate).filter(
         CompetitorUpdate.id == update_id
     ).first()
@@ -85,6 +108,14 @@ def get_similar_updates(
 
 @router.get("/search")
 def search_updates(query: str, top_k: int = 5):
+    if not VECTOR_AVAILABLE:
+        return {
+            "status": "disabled",
+            "message": "Vector search is disabled in deployment because FAISS is not installed.",
+            "query": query,
+            "results": []
+        }
+
     results = search_similar_updates(
         query_text=query,
         top_k=top_k

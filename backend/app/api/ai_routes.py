@@ -210,15 +210,19 @@ def predict_all_updates(db: Session = Depends(get_db)):
         try:
             query_text = build_text_for_embedding(update)
 
-            similar_updates = search_similar_updates(
-                query_text=query_text,
-                top_k=4
-            )
-
-            similar_updates = [
-                item for item in similar_updates
-                if item["update_id"] != update.id
-            ][:3]
+            similar_updates = []
+            try:
+                vector_result = search_similar_updates(
+                    query_text=query_text,
+                    top_k=4
+                )
+                similar_updates = [
+                    item for item in vector_result
+                    if item["update_id"] != update.id
+                ][:3]
+            except Exception:
+                # Vector search not available, continue without similar updates
+                similar_updates = []
 
             prediction_result = predict_competitor_next_move(
                 title=update.title,
@@ -268,15 +272,19 @@ def predict_single_update(update_id: int, db: Session = Depends(get_db)):
     try:
         query_text = build_text_for_embedding(update)
 
-        similar_updates = search_similar_updates(
-            query_text=query_text,
-            top_k=4
-        )
-
-        similar_updates = [
-            item for item in similar_updates
-            if item["update_id"] != update.id
-        ][:3]
+        similar_updates = []
+        try:
+            vector_result = search_similar_updates(
+                query_text=query_text,
+                top_k=4
+            )
+            similar_updates = [
+                item for item in vector_result
+                if item["update_id"] != update.id
+            ][:3]
+        except Exception:
+            # Vector search not available, continue without similar updates
+            similar_updates = []
 
         prediction_result = predict_competitor_next_move(
             title=update.title,
