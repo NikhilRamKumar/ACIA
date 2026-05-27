@@ -1,95 +1,109 @@
 # ACIA – Autonomous Competitive Intelligence Agent
 
-ACIA is a multi-domain AI-powered competitive intelligence platform that monitors competitors, scrapes market updates, summarizes changes, detects pricing and product movements, scores threats, predicts competitor next moves, and generates strategic intelligence for businesses.
+ACIA is a multi-domain AI-powered competitive intelligence platform that helps businesses monitor competitors, track market updates, analyze strategic signals, generate threat scores, predict competitor moves, and create intelligence reports.
 
-The system supports multiple domains such as AI/GenAI, Mobile Phones, Electric Vehicles, SaaS Products, E-commerce, and FinTech.
-
----
-
-## 🚀 Project Overview
-
-Businesses often need to track competitor updates such as product launches, pricing changes, feature releases, partnerships, market expansion, and strategic announcements. Manually checking competitor websites, blogs, pricing pages, and news sources is time-consuming.
-
-ACIA solves this by automatically collecting competitor updates, analyzing them using AI logic, and presenting useful intelligence through APIs and dashboard-ready data.
+The platform supports multiple business domains such as AI/GenAI, Mobile Phones, SaaS Products, Electric Vehicles, E-commerce, and FinTech.
 
 ---
 
-## ✨ Key Features
+## Live Demo
 
-- Multi-domain competitor tracking
-- Competitor database management
-- Domain-specific intelligence
-- Blog/news scraping
-- Full article content extraction
-- PostgreSQL storage
+Frontend: https://acia-frontend.vercel.app  
+Backend API: https://acia-backend.onrender.com  
+Swagger Docs: https://acia-backend.onrender.com/docs
+
+---
+
+## Project Overview
+
+Companies need to constantly monitor competitor activities such as product launches, pricing changes, feature releases, partnerships, market expansion, and strategic announcements.
+
+Doing this manually is time-consuming and difficult.
+
+ACIA solves this by collecting competitor updates, storing them, analyzing them, and presenting useful intelligence through a modern dashboard.
+
+---
+
+## Key Features
+
+- Multi-domain competitive intelligence
+- Competitor management
+- Domain-specific dashboards
+- Blog/news/RSS/sitemap-based update collection
+- PostgreSQL data storage
 - AI/local summarization
 - Category classification
-- Threat scoring
-- Competitor alerts
+- Threat/risk scoring
 - Pricing change detection
-- FAISS vector search for similar past updates
-- Competitor next-move prediction
+- Competitor alerts
 - Market trend summaries
 - Feature comparison
 - AI-generated intelligence reports
-- Weekly scheduler support
-- Human feedback system
+- Prediction of competitor next moves
+- Recommended strategic response
+- Full update analysis modal
+- Dark themed modern frontend
+- Deployed frontend and backend
 
 ---
 
-## 🧠 Supported Domains
+## Supported Domains
 
-| Domain | Examples |
+| Domain | Example Competitors |
 |---|---|
 | AI / GenAI | OpenAI, Anthropic, Perplexity, Mistral AI, Cohere |
-| Mobile Phones | Apple, Samsung, OnePlus, Xiaomi, Google Pixel |
+| Mobile Phones | Apple, Samsung, Google Pixel, OnePlus, Xiaomi |
 | Electric Vehicles | Tesla, BYD, Rivian, Hyundai EV, Tata EV |
 | SaaS Products | Notion, Slack, Linear, Atlassian, HubSpot |
-| E-commerce | Amazon, Flipkart, Shopify, Meesho |
+| E-commerce | Amazon, Flipkart, Meesho, Shopify, eBay |
 | FinTech | Razorpay, Stripe, Paytm, PhonePe, PayPal |
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
+
+### Frontend
+
+- React
+- Vite
+- Tailwind CSS
+- Axios
+- React Router DOM
+- Framer Motion
+- Lucide React
+- Vercel
 
 ### Backend
+
 - FastAPI
 - PostgreSQL
 - SQLAlchemy
 - Pydantic
 - BeautifulSoup
 - Requests
+- Feedparser
 - APScheduler
-- FAISS
-- Sentence Transformers
-- Python
+- OpenAI API / local fallback logic
+- Render
 
-### Frontend
-- React
-- Vite
-- Tailwind CSS
-- Axios
-- React Router
-- Framer Motion
-- Lucide React
+### Database
 
----
+- Supabase PostgreSQL
 
-## 🏗️ Architecture
 
-text
-Competitor Websites / Blogs / News Pages
-        ↓
-Scraper Service
-        ↓
+## System Architecture
+User
+ ↓
+React + Vite Frontend
+ ↓
+FastAPI Backend
+ ↓
 PostgreSQL Database
-        ↓
+ ↓
+Scraper / RSS / Sitemap Collector
+ ↓
 AI Summarization + Category Detection
-        ↓
-Threat Scoring + Pricing Detection
-        ↓
-Vector Search + Similar Updates
-        ↓
-Prediction + Strategic Response
-        ↓
+ ↓
+Threat Scoring + Prediction
+ ↓
 Reports / Alerts / Dashboard
